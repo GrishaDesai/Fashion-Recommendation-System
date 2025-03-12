@@ -15,7 +15,7 @@ export default function Product() {
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/allCategories/${param.category}`);
+      const response = await fetch(`https://tiyara.onrender.com/allCategories/${param.category}`);
       const data = await response.json();
       console.log("data ", data);
 

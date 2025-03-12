@@ -27,7 +27,7 @@ export default function Recommendation() {
             setError("");
             setDebugInfo(null);
 
-            const response = await fetch(`http://localhost:5000/recommend/${id}`);
+            const response = await fetch(`https://tiyara.onrender.com/recommend/${id}`);
             const data = await response.json();
 
             if (!response.ok) {
@@ -61,7 +61,7 @@ export default function Recommendation() {
 
     // const fetchProduct = async () => {
     //     try {
-    //         const response = await fetch(`http://localhost:5000/product/${param.id}`);
+    //         const response = await fetch(`https://tiyara.onrender.com/product/${param.id}`);
     //         if (!response.ok) {
     //             throw new Error("Failed to fetch product");
     //         }
@@ -83,7 +83,7 @@ export default function Recommendation() {
         <div className="scrollbar-custom max-h-screen overflow-auto">
             <h1 className="text-xl font-bold mb-2">Clothing Recommendation System</h1>
 
-            {isLoading && <Loader/>}
+            {isLoading && <Loader />}
 
             <Navbar />
             <div className="w-full max-w-screen min-h-screen">

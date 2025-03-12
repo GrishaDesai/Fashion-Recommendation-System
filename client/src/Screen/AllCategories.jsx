@@ -14,7 +14,7 @@ export default function AllCategories() {
   const fetchCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:5000/allCategories");
+      const response = await fetch("https://tiyara.onrender.com/allCategories");
       const data = await response.json();
       setCat(data);
     } catch (err) {
@@ -26,7 +26,7 @@ export default function AllCategories() {
 
   return (
     <div className="container mx-auto p-6">
-      <Navbar/>
+      <Navbar />
       <h2 className="text-2xl font-semibold mb-4 text-gray-800 mt-12 flex justify-center">Categories</h2>
 
       {isLoading ? (

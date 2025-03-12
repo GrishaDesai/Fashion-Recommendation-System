@@ -78,7 +78,7 @@ export default function Home() {
   const fetchCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:5000/main_category");
+      const response = await fetch("https://tiyara.onrender.com/main_category");
       const data = await response.json();
       console.log(data);
 
@@ -186,7 +186,7 @@ export default function Home() {
               <div className="w-[50%] px-20 pt-20">
                 <h1 className="text-7xl font-extrabold text-plum mb-5">Tiyara - </h1>
                 <h1 className="text-5xl font-bold text-plum opacity-80 mb-10" style={{ 'lineHeight': '55px' }}>Crowning Your Style with Elegance and Glamour. </h1>
-                  <button className="bg-plum rounded-md px-5 py-3 text-ivory font-medium" onClick={() => navigate('/allProducts')}>Start Shopping</button>
+                <button className="bg-plum rounded-md px-5 py-3 text-ivory font-medium" onClick={() => navigate('/allProducts')}>Start Shopping</button>
               </div>
               <div className="w-[50%] px-4 text-center relative">
                 <div className="relative flex items-center justify-center">

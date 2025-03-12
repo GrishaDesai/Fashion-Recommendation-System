@@ -20,7 +20,7 @@ const CategoryProducts = () => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`http://localhost:5000/category_product/${param.category}`);
+        const response = await fetch(`https://tiyara.onrender.com/category_product/${param.category}`);
         const data = await response.json();
 
         setProducts(data.filtered_products);
