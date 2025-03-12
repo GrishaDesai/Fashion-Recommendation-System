@@ -10,7 +10,7 @@ import gdown
 # https://drive.google.com/file/d/1cJFRKCa7G6kJvrF5c3NT4E3BXlJ9m4Ih/view?usp=drive_link vector
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://tiyara-1.onrender.com"}})
 
 # Important: Get port from environment variable for Render
 import os
