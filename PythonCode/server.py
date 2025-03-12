@@ -4,6 +4,10 @@ import pickle
 import pandas as pd
 import numpy as np
 import joblib
+import gdown
+
+# https://drive.google.com/file/d/1SqUpBjEGVlusHNkjXRkYL77yf3Fk7oTI/view?usp=drive_link knn
+# https://drive.google.com/file/d/1cJFRKCa7G6kJvrF5c3NT4E3BXlJ9m4Ih/view?usp=drive_link vector
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +16,19 @@ CORS(app)
 import os
 port = int(os.environ.get("PORT", 5000))
 
+file_ids = {
+    'knn_model' : '1SqUpBjEGVlusHNkjXRkYL77yf3Fk7oTI',
+    'vectors' : '1cJFRKCa7G6kJvrF5c3NT4E3BXlJ9m4Ih'
+}
+
+# Download files if not present
+def download_file(file_id, file_name):
+    if not os.path.exists(file_name):
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, file_name, quiet=False)
+
+download_file(file_ids["knn_model"], "knn_model.pkl")
+download_file(file_ids["vectors"], "vectors.npy")
 
 # with open('clothes_index.pkl', 'rb') as f:
 #     clothes = pickle.load(f)
@@ -129,8 +146,14 @@ def getAllProducts():
 
 @app.route('/allCategories', methods=['GET'])
 def getAllCategories():
-    categories = cat_df.fillna("").to_dict(orient="records")
+    categories = individual_cat.fillna("").to_dict(orient="records")
     return jsonify(categories)
+
+@app.route('/allCategories/<category>', methods=['GET'])
+def get_Category_Products(category):
+    filtered_products = dataset_df[dataset_df['Individual_category'].str.lower() == category.lower()]
+    product = filtered_products.fillna("").to_dict(orient="records")
+    return jsonify(product)
 
 @app.route('/category/<category>', methods=['GET'])
 def Products(category): 

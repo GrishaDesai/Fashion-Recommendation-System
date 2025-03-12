@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from '../Components/Navbar';
+import Loader from '../Components/Loader';
 
 export default function Recommendation() {
     const [productId, setProductId] = useState("");
@@ -26,7 +27,7 @@ export default function Recommendation() {
             setError("");
             setDebugInfo(null);
 
-            const response = await fetch(`https://tiyara.onrender.com/recommend/${id}`);
+            const response = await fetch(`http://localhost:5000/recommend/${id}`);
             const data = await response.json();
 
             if (!response.ok) {
@@ -41,7 +42,6 @@ export default function Recommendation() {
             setProduct(data.product);
             console.log("data recommendations - ", data.recommendations);
             console.log("data product - ", data.product);
-
 
             // If there's any debug info in the response, save it
             if (data.details || data.available_sample) {
@@ -59,36 +59,36 @@ export default function Recommendation() {
         }
     };
 
-    const fetchProduct = async () => {
-        try {
-            const response = await fetch(`https://tiyara.onrender.com/product/${param.id}`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch product");
-            }
-            const data = await response.json();
-            console.log(response);
-            console.log("data - ", data.product);
-            console.log('hello');
+    // const fetchProduct = async () => {
+    //     try {
+    //         const response = await fetch(`http://localhost:5000/product/${param.id}`);
+    //         if (!response.ok) {
+    //             throw new Error("Failed to fetch product");
+    //         }
+    //         const data = await response.json();
+    //         console.log(response);
+    //         console.log("data - ", data.product);
+    //         console.log('hello');
 
 
-            setProduct(data.product);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    //         setProduct(data.product);
+    //     } catch (err) {
+    //         setError(err.message);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     return (
-        <div className="p-4">
+        <div className="scrollbar-custom max-h-screen overflow-auto">
             <h1 className="text-xl font-bold mb-2">Clothing Recommendation System</h1>
 
-            {isLoading && <p className="text-blue-500">Loading recommendations...</p>}
+            {isLoading && <Loader/>}
 
             <Navbar />
-            <div className="max-w-5xl mx-auto p-6 min-h-screen">
+            <div className="w-full max-w-screen min-h-screen">
 
-                <div className="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
+                <div className="w-full bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
                     {/* Product Image */}
                     <div className="w-full md:w-1/2">
                         <img
@@ -171,15 +171,15 @@ export default function Recommendation() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-center justify-center place-items-center gap-6 mt-4">
+            <div className="w-full max-w-screen grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4 mt-4">
                 {
                     recommendations.map((item, index) => (
-                        <div className="w-64 bg-white shadow-lg rounded-sm overflow-hidden" onClick={() => navigate(`/recommend/${item.recommended_product.Product_id}`)}>
+                        <div className="bg-white shadow-lg rounded-sm overflow-hidden" onClick={() => navigate(`/recommend/${item.recommended_product.Product_id}`)}>
                             {/* Product Image */}
                             <img
                                 src={item.recommended_product.image_url}
                                 alt="Sangria Unstitched Dress Material"
-                                className="w-full h-80 object-cover"
+                                className="w-full object-cover"
                             />
 
                             {/* Rating Section */}
