@@ -11,9 +11,9 @@ import gdown
 
 app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "https://tiyara-1.onrender.com"}})
-# CORS(app, resources={r"/*": {"origins": "*"}}) 
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True) 
 # Allow specific origins
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://tiyara-1.onrender.com"]}})
+# CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://tiyara-1.onrender.com"]}})
 
 
 # Important: Get port from environment variable for Render
