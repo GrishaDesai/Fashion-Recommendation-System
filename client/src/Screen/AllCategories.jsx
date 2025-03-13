@@ -14,7 +14,7 @@ export default function AllCategories() {
   const fetchCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:5000/allCategories");
+      const response = await fetch("https://tiyara.onrender.com/allCategories");
       const data = await response.json();
       setCat(data);
     } catch (err) {
