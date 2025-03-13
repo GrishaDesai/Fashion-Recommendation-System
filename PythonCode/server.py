@@ -26,23 +26,23 @@ file_ids = {
 }
 
 # Download files if not present
-# def download_file(file_id, file_name):
-#     if not os.path.exists(file_name):
-#         url = f"https://drive.google.com/uc?id={file_id}"
-#         gdown.download(url, file_name, quiet=False)
-
 def download_file(file_id, file_name):
     if not os.path.exists(file_name):
         url = f"https://drive.google.com/uc?id={file_id}"
         gdown.download(url, file_name, quiet=False)
-        if not os.path.exists(file_name) or os.path.getsize(file_name) == 0:
-            raise Exception(f"Failed to download {file_name}")
+
+# def download_file(file_id, file_name):
+#     if not os.path.exists(file_name):
+#         url = f"https://drive.google.com/uc?id={file_id}"
+#         gdown.download(url, file_name, quiet=False)
+#         if not os.path.exists(file_name) or os.path.getsize(file_name) == 0:
+#             raise Exception(f"Failed to download {file_name}")
 
 download_file(file_ids["knn_model"], "knn_model.pkl")
 download_file(file_ids["vectors"], "vectors.npy")
 
-knn_model = joblib.load('knn_model.pkl')
-vectors = np.load('vectors.npy')
+# knn_model = joblib.load('knn_model.pkl')
+# vectors = np.load('vectors.npy')
 
 # with open('clothes_index.pkl', 'rb') as f:
 #     clothes = pickle.load(f)
@@ -75,105 +75,105 @@ cat_df = pd.DataFrame(catset)
 main_cat_df = pd.DataFrame(main_cat)
 
 
-# @app.route('/recommend/<id>', methods=['GET'])
-# def recommend(id):
-#     try:
-#         with open('knn_model.pkl', 'rb') as f:
-#             knn_model = joblib.load(f)  
-
-#         with open('vectors.npy', 'rb') as f:
-#             vectors = np.load(f)
-
-#         # Print incoming ID and its type
-#         print(f"Received product ID: {id} (type: {type(id)})")
-        
-#         index_list = dataset_df.index[dataset_df["Product_id"].astype(str) == id].tolist()
-
-#         if not index_list:
-#             print(f"No product found with ID: {id}")
-#             return jsonify({
-#                 'error': 'Product not found',
-#                 'details': f'Product ID {id} does not exist in the database',
-#                 'available_sample': dataset_df['Product_id'].astype(str).tolist()[:5]
-#             }), 404
-        
-#         index = index_list[0]
-
-#         print("index - ", index)
-            
-#         print(f"Converted product ID: {id} (type: {type(id)})")
-        
-#         # Find products matching the ID
-#         matching_products = dataset_df.iloc[index]
-        
-#         print(f"Found matching product: {matching_products['Product_id']}")
-        
-
-#         # Get product details
-#         product_data = matching_products.fillna('').to_dict()
-#         print("Product data:", product_data)
-        
-#         distances, indices = knn_model.kneighbors([vectors[index]])
-
-#         print("distance, indices = ",distances, indices[0])
-
-#         # Get the recommended product IDs
-#         # recommended_ids = [dataset_df.iloc[i] for i in indices[0]]
-
-#         # print("recommended_ids = ",recommended_ids)
-
-#         print('len dataset - ', len(dataset_df))
-        
-#         recommendations = []
-#         for i in indices[0]:
-#             if i >= len(dataset_df):  
-#                 print(f"Skipping out-of-bounds index {i} (dataset length: {len(dataset_df)})")
-#                 continue  # Skip invalid indices
-
-#             recommended_product = dataset_df.iloc[i].fillna('').to_dict()  # Convert entire row to dictionary
-#             recommendations.append({
-#                 'recommended_product': recommended_product,  # Add entire product object
-#                 # 'score': distances[0][i]
-#             })
-        
-#         print(f"Returning {len(recommendations)} recommendations")
-#         return jsonify({'recommendations': recommendations, "product": product_data})
-    
-#     except ValueError as ve:
-#         print(f"Value Error: {str(ve)}")
-#         return jsonify({
-#             'error': 'Invalid product ID format',
-#             'details': str(ve)
-#         }), 400
-#     except Exception as e:
-#         print(f"Error in recommendation: {str(e)}")
-#         return jsonify({
-#             'error': 'Server error',
-#             'details': str(e)
-#         }), 500
-
 @app.route('/recommend/<id>', methods=['GET'])
 def recommend(id):
     try:
+        with open('knn_model.pkl', 'rb') as f:
+            knn_model = joblib.load(f)  
+
+        with open('vectors.npy', 'rb') as f:
+            vectors = np.load(f)
+
+        # Print incoming ID and its type
+        print(f"Received product ID: {id} (type: {type(id)})")
+        
         index_list = dataset_df.index[dataset_df["Product_id"].astype(str) == id].tolist()
+
         if not index_list:
+            print(f"No product found with ID: {id}")
             return jsonify({
                 'error': 'Product not found',
-                'details': f'Product ID {id} does not exist',
-                'sample_ids': dataset_df['Product_id'].astype(str).tolist()[:5]
+                'details': f'Product ID {id} does not exist in the database',
+                'available_sample': dataset_df['Product_id'].astype(str).tolist()[:5]
             }), 404
+        
         index = index_list[0]
+
+        print("index - ", index)
+            
+        print(f"Converted product ID: {id} (type: {type(id)})")
+        
+        # Find products matching the ID
+        matching_products = dataset_df.iloc[index]
+        
+        print(f"Found matching product: {matching_products['Product_id']}")
+        
+
+        # Get product details
+        product_data = matching_products.fillna('').to_dict()
+        print("Product data:", product_data)
+        
         distances, indices = knn_model.kneighbors([vectors[index]])
+
+        print("distance, indices = ",distances, indices[0])
+
+        # Get the recommended product IDs
+        # recommended_ids = [dataset_df.iloc[i] for i in indices[0]]
+
+        # print("recommended_ids = ",recommended_ids)
+
+        print('len dataset - ', len(dataset_df))
+        
         recommendations = []
         for i in indices[0]:
-            if i >= len(dataset_df):
-                continue
-            recommended_product = dataset_df.iloc[i].fillna('').to_dict()
-            recommendations.append({'recommended_product': recommended_product})
-        product_data = dataset_df.iloc[index].fillna('').to_dict()
-        return jsonify({'recommendations': recommendations, 'product': product_data})
+            if i >= len(dataset_df):  
+                print(f"Skipping out-of-bounds index {i} (dataset length: {len(dataset_df)})")
+                continue  # Skip invalid indices
+
+            recommended_product = dataset_df.iloc[i].fillna('').to_dict()  # Convert entire row to dictionary
+            recommendations.append({
+                'recommended_product': recommended_product,  # Add entire product object
+                # 'score': distances[0][i]
+            })
+        
+        print(f"Returning {len(recommendations)} recommendations")
+        return jsonify({'recommendations': recommendations, "product": product_data})
+    
+    except ValueError as ve:
+        print(f"Value Error: {str(ve)}")
+        return jsonify({
+            'error': 'Invalid product ID format',
+            'details': str(ve)
+        }), 400
     except Exception as e:
-        return jsonify({'error': 'Recommendation failed', 'details': str(e)}), 500
+        print(f"Error in recommendation: {str(e)}")
+        return jsonify({
+            'error': 'Server error',
+            'details': str(e)
+        }), 500
+
+# @app.route('/recommend/<id>', methods=['GET'])
+# def recommend(id):
+#     try:
+#         index_list = dataset_df.index[dataset_df["Product_id"].astype(str) == id].tolist()
+#         if not index_list:
+#             return jsonify({
+#                 'error': 'Product not found',
+#                 'details': f'Product ID {id} does not exist',
+#                 'sample_ids': dataset_df['Product_id'].astype(str).tolist()[:5]
+#             }), 404
+#         index = index_list[0]
+#         distances, indices = knn_model.kneighbors([vectors[index]])
+#         recommendations = []
+#         for i in indices[0]:
+#             if i >= len(dataset_df):
+#                 continue
+#             recommended_product = dataset_df.iloc[i].fillna('').to_dict()
+#             recommendations.append({'recommended_product': recommended_product})
+#         product_data = dataset_df.iloc[index].fillna('').to_dict()
+#         return jsonify({'recommendations': recommendations, 'product': product_data})
+#     except Exception as e:
+#         return jsonify({'error': 'Recommendation failed', 'details': str(e)}), 500
 
 @app.route('/allProducts', methods=['GET'])
 def getAllProducts():
