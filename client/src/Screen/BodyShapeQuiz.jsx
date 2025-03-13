@@ -25,7 +25,7 @@ const BodyShapeQuiz = () => {
         setResult(null);
 
         try {
-            const response = await fetch("https://tiyara.onrender.com/body-shape-quiz", {
+            const response = await fetch("http://localhost:5000/body-shape-quiz", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

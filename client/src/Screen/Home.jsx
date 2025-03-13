@@ -78,7 +78,7 @@ export default function Home() {
   const fetchCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("https://tiyara.onrender.com/main_category");
+      const response = await fetch("http://localhost:5000/main_category");
       const data = await response.json();
       console.log(data);
 

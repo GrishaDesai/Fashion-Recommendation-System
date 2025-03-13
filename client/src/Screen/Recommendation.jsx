@@ -27,7 +27,7 @@ export default function Recommendation() {
             setError("");
             setDebugInfo(null);
 
-            const response = await fetch(`https://tiyara.onrender.com/recommend/${id}`);
+            const response = await fetch(`http://localhost:5000/recommend/${id}`);
             const data = await response.json();
 
             if (!response.ok) {
@@ -61,7 +61,7 @@ export default function Recommendation() {
 
     // const fetchProduct = async () => {
     //     try {
-    //         const response = await fetch(`https://tiyara.onrender.com/product/${param.id}`);
+    //         const response = await fetch(`http://localhost:5000/product/${param.id}`);
     //         if (!response.ok) {
     //             throw new Error("Failed to fetch product");
     //         }
