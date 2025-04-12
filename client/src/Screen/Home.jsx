@@ -18,6 +18,10 @@ import style34 from "../assets/image/style34.jpg";
 import Navbar from "../Components/Navbar";
 import { useNavigate } from "react-router-dom";
 import Loader from "../Components/Loader";
+import bodyshape from '../assets/image/bodyshape1-removebg-preview.png'
+import bodyshapeBg from '../assets/image/bodyshape-bg.png'
+import bodyshapeBg1 from '../assets/image/bodyshape-bg6.png'
+import Footer from "../Components/Footer";
 
 
 export default function Home() {
@@ -78,7 +82,8 @@ export default function Home() {
   const fetchCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("https://tiyara.onrender.com/main_category");
+      const apiUrl = process.env.REACT_APP_API_URL
+      const response = await fetch(`${apiUrl}/main_category`);
       const data = await response.json();
       console.log(data);
 
@@ -149,33 +154,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Category Section */}
-          <div className="mt-5 px-6">
-            <div className="flex overflow-x-auto gap-6 justify-center scrollbar-custom">
-              {cat.map((category, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  {/* Category Container */}
-                  <div
-                    className="relative w-32 h-36 sm:w-44 sm:h-48 flex flex-col items-center cursor-pointer"
-                    onClick={() => navigate(`/category/${category.m_cat}`)}
-                  >
-                    {/* Category Image */}
-                    <img
-                      src={`${category.image}`}
-                      alt={category.name}
-                      className="w-24 h-32 sm:w-28 sm:h-44 object-cover absolute rounded-b-full bottom-0 z-10"
-                    />
-                    {/* Circular Background */}
-                    <div className="w-28 h-28 sm:w-40 sm:h-40 bg-blush rounded-full shadow-lg absolute bottom-0"></div>
-                  </div>
-                  {/* Category Name */}
-                  <h3 className="mt-3 text-base sm:text-lg font-semibold text-plum">
-                    {category.m_cat}
-                  </h3>
-                </div>
-              ))}
-            </div>
-          </div>
         </>
       ) : (
         // 💻 Render for Desktop (md and larger)
@@ -233,34 +211,86 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="mt-40">
-            <div className="flex flex-nowrap overflow-x-auto justify-evenly scrollbar-custom">
-              {cat.map((category, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  {/* Container for both circle and image */}
-                  <div className="relative w-44 h-48 flex flex-col items-center" onClick={() => navigate(`/category/${category.m_cat}`)}>
-                    {/* Image that extends above the circle */}
-                    <img
-                      src={`../${category.image}`}
-                      alt={category.name}
-                      className="w-28 h-44 object-cover absolute rounded-b-full bottom-0"
-                      style={{
-                        zIndex: "10" // Keep image above the circle
-                      }}
-                    />
-
-                    {/* Circular mask that hides bottom part */}
-                    <div className="w-40 h-40 bg-blush rounded-full shadow-lg absolute bottom-0">
-                      {/* Empty div that acts as the circle */}
-                    </div>
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold text-plum">{category.m_cat}</h3>
-                </div>
-              ))}
-            </div>
-          </div>
+          
         </>
       )}
+      <div className="mt-10 md:mt-40">
+        <h1 className="text-plum text-2xl ms-5 font-bold">
+          🌸 Style by Category
+        </h1>
+        <div className="flex flex-nowrap overflow-x-auto justify-evenly scrollbar-custom mb-10">
+          {cat.map((category, index) => (
+            <div key={index} className="flex flex-col items-center">
+              {/* Container for both circle and image */}
+              <div className="relative w-44 h-48 flex flex-col items-center" onClick={() => navigate(`/category/${category.m_cat}`)}>
+                {/* Image that extends above the circle */}
+                <img
+                  src={`../${category.image}`}
+                  alt={category.name}
+                  className="w-28 h-44 object-cover absolute rounded-b-full bottom-0"
+                  style={{
+                    zIndex: "10" // Keep image above the circle
+                  }}
+                />
+
+                {/* Circular mask that hides bottom part */}
+                <div className="w-40 h-40 bg-rose  rounded-full shadow-lg absolute bottom-0">
+                  {/* Empty div that acts as the circle */}
+                </div>
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-plum">{category.m_cat}</h3>
+            </div>
+          ))}
+        </div>
+        <div className="mb-10 px-10 md:px-40 py-10 flex flex-col md:flex-row justify-around items-center w-full"
+          style={{
+            backgroundImage: `url(${bodyshapeBg1})`,
+            backgroundSize: "contain", // or "cover" based on your preference
+            backgroundPosition: "center bottom",
+            backgroundRepeat: "no-repeat",
+          }}>
+          {/* Body Shape Image Section */}
+          <div className="relative h-96 my-10 w-96 flex items-end justify-center">
+            {/* Circular Background */}
+            <div className="w-80 h-80 bg-blush rounded-t-full shadow-lg absolute bottom-0"></div>
+
+            {/* Body Shape Image */}
+            <img
+              src={bodyshape}
+              alt="Body Shape"
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-72 h-96 object-cover"
+              style={{
+                zIndex: 8,
+                marginTop: "-10px", // Moves the image slightly outward from the top
+              }}
+            />
+          </div>
+
+          {/* Body Shape Info Section */}
+          <div className="max-w-lg text-center flex flex-col justify-center w-full md:w-3/4">
+            <h2 className="text-4xl font-bold text-plum mb-4">
+              Know Your Body Shape
+            </h2>
+            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+              Understanding your body shape is the first step towards finding styles that enhance your natural beauty. Whether you're looking for the perfect fit or just curious, we've got you covered!
+              Get personalized clothing recommendations that flatter your figure and boost your confidence. Dress with confidence—try it now!
+            </p>
+
+            {/* Buttons Section */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-evenly">
+              <button className="bg-plum text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-plum-dark transition-all duration-300"
+                onClick={() => navigate('/body-shape/measurements')}>
+                Know Using Measurements
+              </button>
+              <button className="bg-white border-2 border-plum text-plum font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-plum hover:text-white transition-all duration-300"
+                onClick={() => navigate('/body-shape-quiz')}>
+                Take a Quick Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+        <Footer/>
+      </div>
     </div>
   );
 

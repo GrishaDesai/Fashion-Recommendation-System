@@ -46,7 +46,7 @@ export default function Navbar() {
           </ul>
 
           {/* Search Bar - Shown on medium+ screens */}
-          <div className="hidden lg:flex items-center justify-between border rounded-lg border-wine px-2 py-2 w-64 xl:w-80 focus-within:border-wine">
+          {/* <div className="hidden lg:flex items-center justify-between border rounded-lg border-wine px-2 py-2 w-64 xl:w-80 focus-within:border-wine">
             <input
               type="text"
               placeholder="Search..."
@@ -55,7 +55,7 @@ export default function Navbar() {
             <button className="ml-2 text-wine hover:text-gray-600 transition-all">
               <i className="fa fa-camera" aria-hidden="true"></i>
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Right: Login & Signup Buttons - Hidden on mobile */}

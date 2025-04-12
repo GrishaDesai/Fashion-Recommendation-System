@@ -10,6 +10,7 @@ import Home from './Screen/Home';
 import CategoryProducts from './Screen/CategoryProduct';
 import './App.css'
 import './index.css'
+import BodyShapeRecommendation from './Screen/BodyShapeRecommendation';
 
 export default function App() {
 
@@ -25,6 +26,7 @@ export default function App() {
         {/* <Route path='/category/:category' element={<Product/>}/> */}
         <Route path='/body-shape/measurements' element={<BodyShapeForm/>}/>
         <Route path='/body-shape-quiz/' element={<BodyShapeQuiz/>}/>
+        <Route path='/body-shape/recommendations' element={<BodyShapeRecommendation/>}/>
       </Routes>
     </BrowserRouter>
   )

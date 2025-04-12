@@ -17,24 +17,28 @@ code {
     monospace;
 }
 
-@layer utilities {
-  .scrollbar-custom::-webkit-scrollbar {
-    width: 4px; /* Adjust to make it thinner */
-    height: 4px; /* For horizontal scrollbar */
-  }
-
-  .scrollbar-custom::-webkit-scrollbar-track {
-    background: #f1d6db;
-    border-radius: 2px;
-  }
-
-  .scrollbar-custom::-webkit-scrollbar-thumb {
-    background: #bc8f96;
-    border-radius: 2px;
-  }
-
-  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    background: #f1d6db;
-  }
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
 }
 
+::-webkit-scrollbar-track {
+  background: #f6f6f2;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #442e45, #bc8f96);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #A87B96, #e1cada);
+}
+
+select {
+  max-width: 100%;
+  overflow-x: hidden;
+  /* Prevents horizontal overflow */
+}

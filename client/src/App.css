@@ -62,3 +62,9 @@
     background: #f1d6db;
   }
 }
+
+select {
+  max-width: 100%;
+  overflow-x: hidden;
+  /* Prevents horizontal overflow */
+}
