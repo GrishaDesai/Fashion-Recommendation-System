@@ -20,8 +20,10 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../Components/Loader";
 import bodyshape from '../assets/image/bodyshape1-removebg-preview.png'
 import bodyshapeBg from '../assets/image/bodyshape-bg.png'
-import bodyshapeBg1 from '../assets/image/bodyshape-bg6.png'
+import bodyshapeBg1 from '../assets/image/bodyshape-bg5.png'
 import Footer from "../Components/Footer";
+import { FaArrowRight } from "react-icons/fa";
+import skintonebg from '../assets/image/skintonebg.png';
 
 
 export default function Home() {
@@ -29,11 +31,13 @@ export default function Home() {
   const models = [model1, model2, model3];
   const [isMobile, setIsMobile] = useState(false);
   const [cat, setCat] = useState([]);
+  const [occasions, setOccasions] = useState([]);
   const styles = [
     [style11, style12, style13, style14],
     [style21, style22, style23, style24],
     [style34, style31, style33, style32]
   ];
+  const prices = [500, 1000, 1500, 2000, 2500, 3000, 5000, 10000]
 
   const [currentModel, setCurrentModel] = useState(0);
   const [bottomImages, setBottomImages] = useState(styles[0]);
@@ -77,6 +81,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchCategory();
+    fetchOccasion();
   }, []);
 
   const fetchCategory = async () => {
@@ -85,9 +90,23 @@ export default function Home() {
       const apiUrl = process.env.REACT_APP_API_URL
       const response = await fetch(`${apiUrl}/main_category`);
       const data = await response.json();
-      console.log(data);
 
       setCat(data);
+    } catch (err) {
+      console.error("Error details:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchOccasion = async () => {
+    try {
+      setIsLoading(true);
+      const apiUrl = process.env.REACT_APP_API_URL
+      const response = await fetch(`${apiUrl}/occasions`);
+      const data = await response.json();
+
+      setOccasions(data);
     } catch (err) {
       console.error("Error details:", err);
     } finally {
@@ -211,14 +230,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
         </>
       )}
       <div className="mt-10 md:mt-40">
         <h1 className="text-plum text-2xl ms-5 font-bold">
           🌸 Style by Category
         </h1>
-        <div className="flex flex-nowrap overflow-x-auto justify-evenly scrollbar-custom mb-10">
+        <div className="flex flex-nowrap overflow-x-auto justify-evenly scrollbar-custom mb-16">
           {cat.map((category, index) => (
             <div key={index} className="flex flex-col items-center">
               {/* Container for both circle and image */}
@@ -242,17 +261,96 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <div className="mb-10 px-10 md:px-40 py-10 flex flex-col md:flex-row justify-around items-center w-full"
+        <h1 className="text-plum text-2xl ms-5 mb-5 font-bold">
+          🌸 Style by Occasion
+        </h1>
+        <div className="flex flex-nowrap overflow-x-auto justify-evenly items-end h-44 scrollbar-custom mb-16">
+          {occasions.map((occ, index) => (
+            <div key={index} className="relative flex flex-col items-center mx-4">
+              {index % 2 !== 0 ? (
+                <>
+                  <div className="relative w-44 h-48 flex flex-col items-center" onClick={() => navigate(`/occasion/${occ.occasion}`)}>
+                    {/* Image that extends above the circle */}
+                    <img
+                      src={`/assets/image${occ.image}`}
+                      alt={occ.image}
+                      className="h-44 object-contain absolute bottom-0 right-5"
+                      style={{ zIndex: "10" }} // Keep image above the circle
+                    />
+
+                    <span className="absolute top-20 left-3 bg-white px-3 py-1 rounded-full text-sm font-semibold text-wine shadow-lg z-20">
+                      {occ.occasion}
+                    </span>
+
+                    {/* Circular mask that hides bottom part */}
+                    <div className="w-44 h-32 bg-blush rounded-3xl shadow-lg absolute bottom-0">
+                      {/* Empty div that acts as the circle */}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="relative w-32 h-48 flex flex-col items-center" onClick={() => navigate(`/occasion/${occ.occasion}`)}>
+                    {/* Image that extends above the circle */}
+                    <img
+                      src={`/assets/image${occ.image}`}
+                      alt={occ.image}
+                      className="w-28 h-44 object-contain absolute bottom-0 right-0"
+                      style={{ zIndex: "10" }} // Keep image above the circle
+                    />
+
+                    <span className="absolute top-11 left-0 bg-white px-2 py-1 rounded-full text-sm font-semibold text-wine shadow-lg z-20">
+                      {occ.occasion}
+                    </span>
+
+                    {/* Circular mask that hides bottom part */}
+                    <div className="w-40 h-40 bg-blush rounded-3xl shadow-lg absolute bottom-0">
+                      {/* Empty div that acts as the circle */}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+        <h1 className="text-plum text-2xl ms-5 mb-5 font-bold">
+          🌸 Shop by Price
+        </h1>
+        <div className="flex flex-nowrap overflow-x-auto justify-evenly scrollbar-custom mb-10">
+          {prices.map((price, index) => (
+            <div key={index} className="flex flex-col items-center mx-2">
+              {
+                index % 2 !== 0 ?
+                  <>
+                    <div className="bg-blush w-40 h-40 rounded-3xl flex flex-col justify-center items-center" onClick={() => navigate(`price/${price}`)}>
+                      <h1 className="font-semibold opacity-75">Under</h1>
+                      <h1 className="text-3xl font-extrabold text-plum">₹ {price}</h1>
+                    </div>
+                  </>
+                  : <>
+                    <div className="bg-blush w-44 h-32 rounded-3xl flex flex-col justify-center items-center" onClick={() => navigate(`price/${price}`)}>
+                      <h1 className="font-semibold opacity-75">Under</h1>
+                      <h1 className="text-3xl font-extrabold text-plum">₹ {price}</h1>
+                    </div>
+                  </>
+              }
+            </div>
+          ))}
+        </div>
+
+        <div
+          className="my-20 mx-10 px-10 lg:px-40 py-10 flex flex-col md:flex-row justify-around items-center rounded-tr-[100px] rounded-bl-[100px]  lg:rounded-tr-[300px] lg:rounded-bl-[300px] overflow-hidden "
           style={{
             backgroundImage: `url(${bodyshapeBg1})`,
-            backgroundSize: "contain", // or "cover" based on your preference
+            backgroundSize: "cover",
             backgroundPosition: "center bottom",
             backgroundRepeat: "no-repeat",
-          }}>
+          }}
+        >
           {/* Body Shape Image Section */}
-          <div className="relative h-96 my-10 w-96 flex items-end justify-center">
+          <div className="relative h-96 my-10 w-96 flex gap-3 items-end justify-center">
             {/* Circular Background */}
-            <div className="w-80 h-80 bg-blush rounded-t-full shadow-lg absolute bottom-0"></div>
+            <div className="w-64 h-64 lg:w-80 lg:h-80 bg-blush rounded-t-full shadow-lg absolute bottom-0"></div>
 
             {/* Body Shape Image */}
             <img
@@ -278,19 +376,63 @@ export default function Home() {
 
             {/* Buttons Section */}
             <div className="flex flex-col sm:flex-row gap-3 justify-evenly">
-              <button className="bg-plum text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-plum-dark transition-all duration-300"
-                onClick={() => navigate('/body-shape/measurements')}>
+              <button
+                className="bg-plum text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-plum-dark transition-all duration-300"
+                onClick={() => navigate('/body-shape/measurements')}
+              >
                 Know Using Measurements
               </button>
-              <button className="bg-white border-2 border-plum text-plum font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-plum hover:text-white transition-all duration-300"
-                onClick={() => navigate('/body-shape-quiz')}>
+              <button
+                className="bg-white border-2 border-plum text-plum font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-plum hover:text-white transition-all duration-300"
+                onClick={() => navigate('/body-shape-quiz')}
+              >
                 Take a Quick Quiz
               </button>
             </div>
           </div>
         </div>
-        <Footer/>
+
+
+        {/* skintone section */}
+        <div className="w-full relative h-[450px] sm:h-[450px] md:h-[500px] lg:h-72 overflow-visible my-12 sm:my-16 lg:my-28 flex items-start justify-center"
+          style={{
+            backgroundImage: `url(${skintonebg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center bottom",
+            backgroundRepeat: "no-repeat",
+          }}>
+          {/* Left Side: Image Div (Responsive Adjustments) */}
+          <div className="w-40 h-48 sm:w-44 sm:h-52 md:w-48 md:h-56 lg:w-52 lg:h-60 bg-blush rounded-lg absolute -top-8 lg:-top-10 left-1/2 lg:left-60 transform -translate-x-1/2 lg:translate-x-0 border-plum border-8">
+            <img src="/assets/image/skinHome.jpg" alt="skin" className="w-full h-full object-cover" />
+            {/* Circular divs on right edge */}
+            <div className="absolute -right-4 sm:-right-5 top-3 sm:top-4 w-6 h-6 sm:w-8 sm:h-8 bg-[#f8dad0] border-black border-2 rounded-full"></div>
+            <div className="absolute -right-4 sm:-right-5 top-12 sm:top-16 w-6 h-6 sm:w-8 sm:h-8 bg-[#fdd9bc] border-black border-2 rounded-full"></div>
+            <div className="absolute -right-4 sm:-right-5 top-20 sm:top-28 w-6 h-6 sm:w-8 sm:h-8 bg-[#f5c398] border-black border-2 rounded-full"></div>
+            <div className="absolute -right-4 sm:-right-5 top-28 sm:top-40 w-6 h-6 sm:w-8 sm:h-8 bg-[#c69274] border-black border-2 rounded-full"></div>
+          </div>
+
+          {/* Right Side: Content (Responsive Adjustments) */}
+          <div className="absolute top-auto bottom-4 sm:bottom-8 md:bottom-8 text-left w-11/12 sm:w-3/4 md:w-2/3 lg:w-3/6 mx-auto lg:ms-80">
+            <h2 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl font-bold text-plum mb-2 sm:mb-3 lg:mb-4">
+              Discover Your Perfect Shades!
+            </h2>
+            <p className="text-wine font-semibold text-base sm:text-lg md:text-lg lg:text-lg mb-4 sm:mb-5 lg:mb-6">
+              Tired of guessing what shades suit you?<br />
+              Our AI-powered skin tone analysis gives you tailor-made color suggestions.
+              From fashion to makeup, find tones that highlight your natural beauty.
+              No more trial and error, just confident choices.
+            </p>
+            <button className="bg-plum text-white font-semibold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg shadow-lg hover:bg-blush hover:text-wine border-plum border-2 transition-all duration-300 flex justify-center items-center gap-3 sm:gap-4 lg:gap-5"
+              onClick={() => navigate('/skintone-demo')}>
+              Find My Perfect Color <FaArrowRight />
+            </button>
+          </div>
+        </div>
+
+
+        <Footer />
       </div>
+
     </div>
   );
 

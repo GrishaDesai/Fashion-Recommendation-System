@@ -1,0 +1,56 @@
+.wrapper {
+    width: 800px;
+    height: 600px;
+    position: relative;
+}
+
+.login-text {
+    position: absolute;
+    top: -300px;
+    width: 100%;
+    height: 450px;
+    /* background: linear-gradient(to left, #ab68ca, #de67a3); */
+    padding: 6%;
+    z-index: 10;
+    transition: all 0.5s ease-in-out;
+}
+
+.expand {
+    transform: translateY(300px);
+}
+
+.text {
+    display: none;
+}
+
+.show-hide {
+    display: block;
+}
+
+.cta {
+    width: 60px;
+    height: 60px;
+    border: 2px solid white;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    cursor: pointer;
+}
+
+.call-text {
+    position: absolute;
+    width: 100%;
+    background-color: #fff;
+    padding: 10%;
+    box-sizing: border-box;
+}
+
+/* Ensure video fits within the modal */
+video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}

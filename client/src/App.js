@@ -11,6 +11,11 @@ import CategoryProducts from './Screen/CategoryProduct';
 import './App.css'
 import './index.css'
 import BodyShapeRecommendation from './Screen/BodyShapeRecommendation';
+import SkintoneDetection from './Screen/SkintoneDetection';
+import SkintoneDemo from './Screen/SkintoneDemo';
+import Occasion from './Screen/Occasion';
+import Price from './Screen/Price';
+import SkintoneGuide from './Screen/SkintoneGuide';
 
 export default function App() {
 
@@ -27,6 +32,11 @@ export default function App() {
         <Route path='/body-shape/measurements' element={<BodyShapeForm/>}/>
         <Route path='/body-shape-quiz/' element={<BodyShapeQuiz/>}/>
         <Route path='/body-shape/recommendations' element={<BodyShapeRecommendation/>}/>
+        <Route path='/skintone' element={<SkintoneDetection/>}/>
+        <Route path='/skintone-demo' element={<SkintoneDemo />} />
+        <Route path='/skintone-guide' element={<SkintoneGuide />} />
+        <Route path='/occasion/:occ_name' element={<Occasion/>} />
+        <Route path='/price/:price' element={<Price/>}/>
       </Routes>
     </BrowserRouter>
   )

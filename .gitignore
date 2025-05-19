@@ -24,3 +24,4 @@ yarn-error.log*
 
 PythonCode/knn_model.pkl
 PythonCode/vectors.npy
+PythonCode/skin_tone_model_dict.pt
