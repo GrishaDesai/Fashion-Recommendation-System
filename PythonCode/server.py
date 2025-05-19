@@ -27,7 +27,8 @@ port = int(os.environ.get("PORT", 5000))
 
 file_ids = {
     'knn_model' : '1SqUpBjEGVlusHNkjXRkYL77yf3Fk7oTI',
-    'vectors' : '1cJFRKCa7G6kJvrF5c3NT4E3BXlJ9m4Ih'
+    'vectors' : '1cJFRKCa7G6kJvrF5c3NT4E3BXlJ9m4Ih',
+    'skintone_model' : '1Il-FCgeREsDEIslIdkH_GjV_zUggp2Zn'
 }
 
 # Download files if not present
@@ -45,6 +46,7 @@ def download_file(file_id, file_name):
 
 download_file(file_ids["knn_model"], "knn_model.pkl")
 download_file(file_ids["vectors"], "vectors.npy")
+download_file(file_ids['skintone_model'], "skin_tone_model_dict.pt")
 
 skintone_model = load_model("skin_tone_model_dict.pt")
 
