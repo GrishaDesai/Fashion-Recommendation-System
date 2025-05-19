@@ -5,15 +5,20 @@ import pandas as pd
 import numpy as np
 import joblib
 import gdown
+import ast
+from difflib import SequenceMatcher
+import cv2
+from skintone_model import load_model, predict_skin_tone
+
 
 # https://drive.google.com/file/d/1SqUpBjEGVlusHNkjXRkYL77yf3Fk7oTI/view?usp=drive_link knn
 # https://drive.google.com/file/d/1cJFRKCa7G6kJvrF5c3NT4E3BXlJ9m4Ih/view?usp=drive_link vector
 
 app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "https://tiyara-1.onrender.com"}})
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True) 
+# CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True) 
 # Allow specific origins
-# CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://tiyara-1.onrender.com"]}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://tiyara-1.onrender.com"]}})
 
 
 # Important: Get port from environment variable for Render
@@ -41,13 +46,9 @@ def download_file(file_id, file_name):
 download_file(file_ids["knn_model"], "knn_model.pkl")
 download_file(file_ids["vectors"], "vectors.npy")
 
-# knn_model = joblib.load('knn_model.pkl')
-# vectors = np.load('vectors.npy')
+skintone_model = load_model("skin_tone_model_dict.pt")
 
-# with open('clothes_index.pkl', 'rb') as f:
-#     clothes = pickle.load(f)
-
-with open('final_dataset.pkl', 'rb') as f:
+with open('final_dataset_tags.pkl', 'rb') as f:
     dataset = pickle.load(f)    
 
 with open('categories.pkl', 'rb') as f:
@@ -57,7 +58,16 @@ with open('main_category.pkl', 'rb') as f:
     main_cat = pickle.load(f)  
 
 with open('individual_category.pkl', 'rb') as f:
-    individual_cat = pickle.load(f)     
+    individual_cat = pickle.load(f)  
+
+with open('bodyshape.pkl', 'rb') as f:
+    bodyshape = pickle.load(f)   
+
+with open('clothes_index.pkl', 'rb') as f:
+    clothes_tags_df = pickle.load(f)
+
+with open('occasions.pkl', 'rb') as f:
+    occasions = pickle.load(f)    
 
 # with open('knn_model.pkl', 'rb') as f:
 #     knn_model = joblib.load(f)  
@@ -73,6 +83,8 @@ dataset_df = pd.DataFrame(dataset)
 cat_df = pd.DataFrame(catset)
 
 main_cat_df = pd.DataFrame(main_cat)
+
+body_shape_df = pd.DataFrame(bodyshape)
 
 
 @app.route('/recommend/<id>', methods=['GET'])
@@ -152,6 +164,124 @@ def recommend(id):
             'details': str(e)
         }), 500
 
+@app.route('/recommend/body_shape/<shape>', methods=['GET'])
+def body_shape_recommendations(shape):
+    shape_data = body_shape_df[body_shape_df["Name"] == shape].fillna("").to_dict(orient="records")
+
+    final_tag = ast.literal_eval(shape_data[0]["Keywords"])
+
+    print(f"Final tag: {final_tag}")
+
+    # Now match products from products_df based on final_tag
+    recommended_products = recommend_products_body_shape(final_tag)
+
+    # Convert DataFrame to a JSON-serializable format
+    recommended_products_json = recommended_products.fillna('').to_dict(orient="records")
+    
+    return jsonify({
+        'final_tag': final_tag,
+        'recommended_products': recommended_products_json
+    })
+
+
+# def recommend_products_body_shape(tags):
+#     # Convert input tags string into a set of keywords
+#     search_keywords = set(tags.lower().split())  
+
+#     def contains_search(tag_string):
+#         if pd.isna(tag_string):  # Handle NaN values
+#             return False
+#         tag_set = set(tag_string.lower().split())  # Convert tags column to a set of words
+#         return any(keyword in tag_set for keyword in search_keywords)  # Check for matches
+    
+#     # Filter dataset where 'tags' column contains any keyword from the search string
+#     df_filtered = dataset_df[dataset_df['tags'].apply(contains_search)]
+    
+#     return df_filtered.head(5)  # Return top 5 matches
+
+# def recommend_products_body_shape(keywords):
+#     print('keywords ', keywords)
+
+#     # Function to check if any keyword fully matches in tags
+#     def has_keyword_match(tags):
+#         if not isinstance(tags, str):
+#             return False
+#         tag_words = set(tags.lower().split())
+#         for keyword in keywords:
+#             keyword_words = set(keyword.lower().split())
+#             # Check if all words in keyword are present in tags
+#             if keyword_words.issubset(tag_words):
+#                 return True
+#         return False
+    
+#     # Apply the matching function and filter main_df
+#     matched_df = dataset_df[dataset_df['tags'].apply(has_keyword_match)]
+#     return matched_df
+
+def recommend_products_body_shape(keywords):
+    # keyword_words = list(keyword_words)
+    print('keywords here ', keywords)
+    print('keywords length ', len(keywords))
+
+    matching_products = []
+    used_ids = set()  # Track product IDs to avoid duplicates
+
+    for index, product in dataset_df.iterrows():
+        product_tags = str(product['tags']).lower()
+        product_id = product['Product_id']  # Replace with your unique column name
+        
+        for keyword_phrase in keywords:
+            keyword_words = keyword_phrase.split(' ')
+            # print('keywords ',keyword_phrase)
+            f = 0
+            
+            for word in keyword_words:
+                if word not in product_tags:
+                    f = 1
+                    break
+
+            # If all words match and ID not used, append product
+            if f == 0 and product_id not in used_ids:
+                matching_products.append(product)
+                used_ids.add(product_id)
+                break  # Exit keyword loop once matched
+    
+    print("len ", len(matching_products))
+    
+    if matching_products:
+        return pd.DataFrame(matching_products)
+    else:
+        return dataset_df.head(0).drop(columns=['tags_lower'], errors='ignore')   
+
+# def recommend_products_body_shape(keywords):
+#     print('keywords:', keywords)
+
+#     # Define a function to check if all words in a keyword phrase are in product tags
+#     def match_keywords(tags):
+#         tags = str(tags).lower()  # Ensure it's a string
+
+#         for keyword_phrase in keywords:
+#             keyword_words = keyword_phrase.split()  # Split keyword phrase into words
+#             f = 0
+            
+#             for word in keyword_words:
+#                 if word not in tags:
+#                     f = 1
+#                     break
+
+#             if f == 0:
+#                 return True  # Match found
+
+#         return False  # No match found
+
+#     # Apply function to filter dataset
+#     matching_products = dataset_df[dataset_df['tags'].apply(match_keywords)]
+
+#     print("len:", len(matching_products))
+
+#     return matching_products if not matching_products.empty else dataset_df.head(0).drop(columns=['tags_lower'])
+
+
 # @app.route('/recommend/<id>', methods=['GET'])
 # def recommend(id):
 #     try:
@@ -206,43 +336,74 @@ def body_shape():
     data = request.get_json()
 
     # Validate input
-    required_fields = ['bust', 'waist', 'highHip', 'hip']
+    required_fields = ['bust', 'waist', 'highHip', 'hip', 'shoulder']
     if not all(field in data for field in required_fields):
-        return jsonify({"error": "All measurements (bust, waist, highHip, hip) are required"}), 400
+        return jsonify({"error": "All measurements (bust, waist, highHip, hip, shoulder) are required"}), 400
 
     try:
         bust = float(data['bust'])
         waist = float(data['waist'])
         high_hip = float(data['highHip'])
         hip = float(data['hip'])
+        shoulder = float(data['shoulder'])
     except ValueError:
         return jsonify({"error": "All measurements must be numeric"}), 400
 
-    body_shape = determine_body_shape(bust, waist, high_hip, hip)
-    waistHipRatio = round(waist / hip, 2)
-    return jsonify({"bodyShape": body_shape, "waistHipRatio":waistHipRatio})
+    body_shape = determine_body_shape(bust, waist, high_hip, hip, shoulder)
+    waist_hip_ratio = round(waist / hip, 2)
+    print(body_shape, waist_hip_ratio)
+
+    # Find the matching body shape in the DataFrame
+    shape_data = body_shape_df[body_shape_df["Name"] == body_shape].fillna("").to_dict(orient="records")
+    print('shape_data - ', shape_data)
+
+    # return jsonify({"bodyShape": body_shape, "waistHipRatio": waist_hip_ratio})
+
+    if shape_data:
+        # Parse the Recommendations string into a Python list
+        shape_data[0]["Recommendations"] = ast.literal_eval(shape_data[0]["Recommendations"])
+        return jsonify({"bodyShape": body_shape, "data": shape_data[0], "waistHipRatio": waist_hip_ratio})  # Return first match with parsed Recommendations
+    else:
+        return jsonify({"error": "Body shape not found"}), 404
+
 
 # Function to determine body shape
-def determine_body_shape(bust, waist, high_hip, hip):
-    if (bust - hip) <= 1 and (hip - bust) < 3.6 and (bust - waist) >= 9 or (hip - waist) >= 10:
-        return 'Hourglass'
-    elif (hip - bust) > 2 and (hip - waist) >= 7  and (high_hip/waist) >= 1.193:
-        return 'Pear'
-    elif (bust - hip) >= 3.6 and (bust - waist) < 9:
-        return 'Inverted Triangle'
-    elif (hip - bust) < 3.6 and (bust - hip) < 3.6 and (bust - waist) < 9 and (hip - waist) < 10:
-        return 'Rectangle'
-    elif waist >= bust * 0.9 and waist >= hip * 0.9:  # Apple shape condition
-        return 'Apple'
+def determine_body_shape(bust, waist, high_hip, hips, shoulder):
+    # Input validation
+    measurements = [bust, waist, high_hip, hips, shoulder]
+    if any(m <= 0 for m in measurements):
+        raise ValueError("All measurements must be positive numbers")
+
+    # Calculate ratios and round to 2 decimal places
+    shr = round(shoulder / hips, 2)    # Shoulder to hip ratio
+    whr = round(waist / hips, 2)       # Waist to hip ratio
+    hhr = round(high_hip / hips, 2)    # High hip to hip ratio
+
+    print(f"SHR: {shr}, WHR: {whr}, HHR: {hhr}")
+
+    # Define body shapes with adjusted ranges
+    if 0.90 <= shr <= 1.10 and 0.65 <= whr <= 0.85 and 0.85 <= hhr <= 0.95:
+        return "Hourglass"  # Balanced upper/lower, defined waist, gradual hip taper
+    elif shr < 0.90 and whr > 0.75 and hhr >= 0.90:
+        return "Pear"       # Wider hips, moderate waist, fuller lower body
+    elif shr > 1.10 and whr > 0.85 and hhr < 0.95:
+        return "Apple"      # Wider upper body, less defined waist, narrower hips
+    elif 0.90 <= shr <= 1.10 and whr > 0.85 and 0.85 <= hhr <= 0.95:
+        return "Rectangle"  # Balanced upper/lower, straighter waist
+    elif shr > 1.10 and whr < 0.75 and hhr < 0.90:
+        return "Inverted Triangle"  # Broad upper body, defined waist, narrower hips
+    else:
+        return "Unique Shape"  # Catch-all for other combinations
+    
 
 def classify_body_shape(answers):
     # Logic to classify body shape based on answers
     if answers["widestPart"] == "hips":
-        return "Pear Shape"
+        return "Pear"
     elif answers["widestPart"] == "bust":
         return "Inverted Triangle"
     elif answers["widestPart"] == "middle":
-        return "Apple Shape"
+        return "Apple"
     elif answers["widestPart"] == "even":
         return "Rectangle"
     
@@ -258,9 +419,25 @@ def classify_body_shape(answers):
 
 @app.route("/body-shape-quiz", methods=["POST"])
 def body_shape_quiz():
+    print("body_shape_quiz function called")
     data = request.get_json()
+    print("data - ", data)
+    if not data:
+        return jsonify({"error": "Invalid input data"}), 400
+    
     body_shape = classify_body_shape(data)
-    return jsonify({"bodyShape": body_shape})
+    print('body shape', body_shape)
+
+    # Find the matching body shape in the DataFrame
+    shape_data = body_shape_df[body_shape_df["Name"] == body_shape].fillna("").to_dict(orient="records")
+    print('shape_data - ', shape_data)
+
+    if shape_data:
+        # Parse the Recommendations string into a Python list
+        shape_data[0]["Recommendations"] = ast.literal_eval(shape_data[0]["Recommendations"])
+        return jsonify({"bodyShape": body_shape, "data": shape_data[0]})  # Return first match with parsed Recommendations
+    else:
+        return jsonify({"error": "Body shape not found"}), 404
 
 @app.route('/main_category', methods=['GET'])
 def getMainCategory():
@@ -320,10 +497,80 @@ def getProductById(product_id):
 
     return jsonify({"product": product_data})
 
+# Flask route for prediction
+@app.route('/predict-skin-tone', methods=['POST'])
+def predict():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+    
+    # Read image file
+    try:
+        image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
+        if image is None:
+            return jsonify({'error': 'Invalid image'}), 400
+        
+        # Predict skin tone
+        predicted_skin_tone = predict_skin_tone(skintone_model, image)
+        return jsonify({'skin_tone': predicted_skin_tone})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+@app.route('/occasions', methods=['GET'])
+def getAllOccasions():
+    occasion = occasions.fillna("").to_dict(orient="records")
+    return jsonify(occasion)
+
+@app.route('/occasions/<occ_name>', methods=['GET'])
+def getOccasionsByName(occ_name):
+    matching_products = occasions[occasions['occasion'] == occ_name]
+
+    # Handle empty results
+    if matching_products.empty:
+        return jsonify({"error": "Product not found"}), 404
+
+    # Convert DataFrame row to JSON
+    occasion_data = matching_products.to_dict(orient="records")[0]
+
+    # print(occasion_data)  
+
+    # Extract category names from the 'cats' array and convert to lowercase
+    categories = [cat["category"].lower() for cat in occasion_data.get("cats", [])]
+
+    print("categories", categories)
+
+    # Convert Individual_category to lowercase and filter dataset_df
+    dataset_df["Individual_category_lower"] = dataset_df["Individual_category"].str.lower()
+    filtered_products = dataset_df[dataset_df["Individual_category_lower"].isin(categories)]
+
+    return jsonify({
+        "filtered_products": filtered_products.drop(columns=["Individual_category_lower"]).fillna("").to_dict(orient="records"),
+        "categories": categories  # Fix: Return the categories list, not filtered_category
+    })
+
+@app.route('/prices/<price>', methods=['GET'])
+def getProductsByPrice(price):
+
+    # Convert price to float for comparison
+    price = float(price)
+
+    print(type(price))
+    print(type(dataset_df["OriginalPrice"]))
+
+    matching_products = dataset_df[dataset_df['OriginalPrice'] <= price]
+
+     # Convert DataFrame row to JSON
+    product_data = matching_products.fillna("").to_dict(orient="records")
+
+    return jsonify(product_data)
 
 @app.route('/')
 def home():
     return {'name' : 'Welcome to the Cloth Recommendation System!'}
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)  
